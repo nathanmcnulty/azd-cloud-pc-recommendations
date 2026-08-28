@@ -1,0 +1,32 @@
+name: Security hygiene
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-hygiene-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check repository hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          test -f README.md
+          test ! -f azure.yaml
+          if git grep -n -E -e '-----BEGIN [A-Z ]*PRIVATE KEY-----|(^|[^A-Za-z])eyJ[A-Za-z0-9_-]{20,}' -- ':!*.md'; then
+            echo 'Secret-shaped content found.' >&2
+            exit 1
+          fi
