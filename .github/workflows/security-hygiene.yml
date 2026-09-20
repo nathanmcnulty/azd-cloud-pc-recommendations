@@ -25,7 +25,9 @@ jobs:
           set -euo pipefail
           git diff --check
           test -f README.md
-          test ! -f azure.yaml
+          test -f azure.yaml
+          test -f infra/main.bicep
+          test -f src/cloud-pc-monitor/function_app.py
           if git grep -n -E -e '-----BEGIN [A-Z ]*PRIVATE KEY-----|(^|[^A-Za-z])eyJ[A-Za-z0-9_-]{20,}' -- ':!*.md'; then
             echo 'Secret-shaped content found.' >&2
             exit 1

@@ -6,4 +6,8 @@ This is a private work-in-progress repository. Use GitHub's private vulnerabilit
 
 ## Scope
 
-This repository is a design placeholder and is not deployable. Never commit credentials, signing keys, connection strings, or production configuration while the design is being developed.
+This template reads Cloud PC and Intune operational data and stores alert state and compact audit exports in its own Azure resources. It must not be used to bypass Intune, Windows 365, Microsoft Graph, or tenant administrator approval boundaries.
+
+Never commit credentials, signing keys, webhook URLs, access tokens, connection strings, tenant exports, or production configuration. The default deployment is dry-run and the first milestone contains no remediation implementation.
+
+Report behavior that could expose Cloud PC inventory, user identifiers, audit exports, or notification destinations privately. Include the affected commit and a sanitized reproduction; do not attach secrets or live tenant data.

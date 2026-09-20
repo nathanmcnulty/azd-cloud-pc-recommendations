@@ -1,0 +1,8 @@
+.azure/
+.venv/
+__pycache__/
+*.py[cod]
+.python_packages/
+local.settings.json
+.pytest_cache/
+test-results/

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "deviceName": "CPC-UNUSED-01",
+    "lastSyncDateTime": "2026-09-18T12:00:00Z",
+    "complianceState": "compliant",
+    "managementState": "managed",
+    "userPrincipalName": "unused@example.com"
+  },
+  {
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "deviceName": "CPC-STALE-01",
+    "lastSyncDateTime": "2026-08-25T12:00:00Z",
+    "complianceState": "compliant",
+    "managementState": "managed",
+    "userPrincipalName": "stale@example.com"
+  },
+  {
+    "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "deviceName": "CPC-HEALTHY-01",
+    "lastSyncDateTime": "2026-09-18T12:00:00Z",
+    "complianceState": "compliant",
+    "managementState": "managed",
+    "userPrincipalName": "healthy@example.com"
+  }
+]

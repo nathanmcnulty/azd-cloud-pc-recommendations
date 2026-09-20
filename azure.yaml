@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: azd-cloud-pc-recommendations
+metadata:
+  template: azd-cloud-pc-recommendations@0.1.0
+infra:
+  provider: bicep
+  path: infra
+services:
+  monitor:
+    project: ./src/cloud-pc-monitor
+    language: python
+    host: function
+    remoteBuild: true
+hooks:
+  preprovision:
+    windows:
+      shell: pwsh
+      run: ./scripts/preprovision.ps1
+      interactive: false
+    posix:
+      shell: sh
+      run: sh ./scripts/preprovision.sh
+      interactive: false
+  postprovision:
+    windows:
+      shell: pwsh
+      run: ./scripts/postprovision.ps1
+      interactive: false
+    posix:
+      shell: sh
+      run: sh ./scripts/postprovision.sh
+      interactive: false
+requiredVersions:
+  azd: ">= 1.23.0"

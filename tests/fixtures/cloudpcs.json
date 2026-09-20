@@ -1,0 +1,66 @@
+[
+  {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "displayName": "CPC-UNUSED-01",
+    "userPrincipalName": "unused@example.com",
+    "status": "provisioned",
+    "managedDeviceId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "managedDeviceName": "CPC-UNUSED-01",
+    "lastLoginResult": {
+      "time": "2026-08-01T12:00:00Z",
+      "result": "success"
+    },
+    "lastModifiedDateTime": "2026-08-01T12:00:00Z",
+    "provisionedDateTime": "2026-01-01T12:00:00Z",
+    "servicePlanName": "Cloud PC Enterprise 2vCPU/8GB/256GB"
+  },
+  {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "displayName": "CPC-FAILED-01",
+    "userPrincipalName": "failed@example.com",
+    "status": "failed",
+    "statusDetail": {
+      "code": "internalServerError",
+      "message": "Provisioning did not complete."
+    },
+    "managedDeviceId": null,
+    "lastModifiedDateTime": "2026-09-19T10:00:00Z",
+    "servicePlanName": "Cloud PC Enterprise 2vCPU/8GB/256GB"
+  },
+  {
+    "id": "33333333-3333-3333-3333-333333333333",
+    "displayName": "CPC-STALE-01",
+    "userPrincipalName": "stale@example.com",
+    "status": "provisioned",
+    "connectivityResult": {
+      "status": "available"
+    },
+    "managedDeviceId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "managedDeviceName": "CPC-STALE-01",
+    "lastLoginResult": {
+      "time": "2026-09-18T12:00:00Z",
+      "result": "success"
+    },
+    "lastModifiedDateTime": "2026-09-01T12:00:00Z",
+    "provisionedDateTime": "2026-01-01T12:00:00Z",
+    "servicePlanName": "Cloud PC Enterprise 2vCPU/8GB/256GB"
+  },
+  {
+    "id": "44444444-4444-4444-4444-444444444444",
+    "displayName": "CPC-HEALTHY-01",
+    "userPrincipalName": "healthy@example.com",
+    "status": "provisioned",
+    "connectivityResult": {
+      "status": "available"
+    },
+    "managedDeviceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "managedDeviceName": "CPC-HEALTHY-01",
+    "lastLoginResult": {
+      "time": "2026-09-18T12:00:00Z",
+      "result": "success"
+    },
+    "lastModifiedDateTime": "2026-09-18T12:00:00Z",
+    "provisionedDateTime": "2026-01-01T12:00:00Z",
+    "servicePlanName": "Cloud PC Enterprise 2vCPU/8GB/256GB"
+  }
+]
