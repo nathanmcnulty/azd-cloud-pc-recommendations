@@ -1,0 +1,21 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "MONITOR_SCHEDULE": "0 0 * * * *",
+    "GRAPH_API_VERSION": "beta",
+    "CLOUD_PC_RECOMMENDATIONS_ENABLED": "false",
+    "DRY_RUN": "true",
+    "NOTIFICATIONS_ENABLED": "false",
+    "SEND_NOTIFICATIONS_IN_DRY_RUN": "false",
+    "UNUSED_CLOUD_PC_DAYS": "30",
+    "STALE_DEVICE_DAYS": "14",
+    "PROVISIONING_FAILURE_GRACE_MINUTES": "60",
+    "UNHEALTHY_DEVICE_GRACE_MINUTES": "60",
+    "NOTIFICATION_RENOTIFY_HOURS": "24",
+    "REPORT_CONTAINER_NAME": "reports",
+    "STATE_TABLE_NAME": "CloudPcState",
+    "INTUNE_CLOUD_PC_URL": "https://intune.microsoft.com/"
+  }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "CloudPcId": "11111111-1111-1111-1111-111111111111",
+    "ManagedDeviceName": "CPC-UNUSED-01",
+    "UserPrincipalName": "unused@example.com",
+    "ServicePlanName": "Cloud PC Enterprise 2vCPU/8GB/256GB",
+    "UsageInsight": "Underutilized",
+    "RecommendedPlanName": "Cloud PC Enterprise 2vCPU/4GB/128GB"
+  }
+]

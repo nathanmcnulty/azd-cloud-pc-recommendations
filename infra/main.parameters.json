@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${AZURE_ENV_NAME}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "functionAppName": {
+      "value": "${FUNCTION_APP_NAME}"
+    },
+    "storageAccountName": {
+      "value": "${STORAGE_ACCOUNT_NAME}"
+    },
+    "functionPlanName": {
+      "value": "${FUNCTION_PLAN_NAME}"
+    },
+    "appInsightsName": {
+      "value": "${APP_INSIGHTS_NAME}"
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": "${LOG_ANALYTICS_WORKSPACE_NAME}"
+    },
+    "dryRun": {
+      "value": "${DRY_RUN}"
+    },
+    "notificationsEnabled": {
+      "value": "${NOTIFICATIONS_ENABLED}"
+    },
+    "sendNotificationsInDryRun": {
+      "value": "${SEND_NOTIFICATIONS_IN_DRY_RUN}"
+    },
+    "recommendationsEnabled": {
+      "value": "${CLOUD_PC_RECOMMENDATIONS_ENABLED}"
+    },
+    "graphApiVersion": {
+      "value": "${GRAPH_API_VERSION}"
+    },
+    "monitorSchedule": {
+      "value": "${MONITOR_SCHEDULE}"
+    },
+    "unusedCloudPcDays": {
+      "value": "${UNUSED_CLOUD_PC_DAYS}"
+    },
+    "staleDeviceDays": {
+      "value": "${STALE_DEVICE_DAYS}"
+    },
+    "provisioningFailureGraceMinutes": {
+      "value": "${PROVISIONING_FAILURE_GRACE_MINUTES}"
+    },
+    "unhealthyDeviceGraceMinutes": {
+      "value": "${UNHEALTHY_DEVICE_GRACE_MINUTES}"
+    },
+    "notificationRenotifyHours": {
+      "value": "${NOTIFICATION_RENOTIFY_HOURS}"
+    },
+    "reportRetentionDays": {
+      "value": "${REPORT_RETENTION_DAYS}"
+    },
+    "reportContainerName": {
+      "value": "${REPORT_CONTAINER_NAME}"
+    },
+    "stateTableName": {
+      "value": "${STATE_TABLE_NAME}"
+    },
+    "ruleConfigJson": {
+      "value": "${CLOUD_PC_RULES_JSON}"
+    },
+    "alertSuppressions": {
+      "value": "${ALERT_SUPPRESSIONS}"
+    },
+    "teamsWebhookUrl": {
+      "value": "${TEAMS_WEBHOOK_URL}"
+    },
+    "intuneCloudPcUrl": {
+      "value": "${INTUNE_CLOUD_PC_URL}"
+    },
+    "graphRoleAssignmentsEnabled": {
+      "value": "${GRAPH_ROLE_ASSIGNMENTS_ENABLED}"
+    },
+    "remediationEnabled": {
+      "value": "${REMEDIATION_ENABLED}"
+    },
+    "remediationApprovalRequired": {
+      "value": "${REMEDIATION_APPROVAL_REQUIRED}"
+    }
+  }
+}
