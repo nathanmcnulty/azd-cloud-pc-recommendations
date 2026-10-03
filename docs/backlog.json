@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "nathanmcnulty/azd-cloud-pc-recommendations",
+  "sourceRevision": "2f1fab5b13fa11c3f6a993f7ab44cb47c765262d",
+  "capturedAt": "2026-10-03",
+  "items": [
+    {
+      "id": "CPC-001",
+      "title": "Reconcile this backlog with current source and active work",
+      "kind": "discovery",
+      "priority": "P1",
+      "status": "ready",
+      "wave": 0,
+      "problem": "Plans and implementation evidence are spread across files; the captured source can change while other tasks work.",
+      "scope": [
+        "docs/backlog.json",
+        "docs/backlog.md",
+        "Existing roadmap, execution status, open issues and pull requests (read-only)"
+      ],
+      "acceptance": [
+        "Classify each candidate as implemented, still open, superseded or awaiting evidence; retain source links and reasons.",
+        "Inspect dirty state, remotes, worktrees and local environment presence without reading secrets; avoid duplicate work with active owners.",
+        "Resolve the actual offline validation commands and record exact current default-branch/working-tree provenance; do not copy historical live passes to newer code."
+      ],
+      "validation": [
+        "git status --short",
+        "git remote -v",
+        "git worktree list --porcelain",
+        "Read the applicable instructions and validation workflow; read gh issue list and gh pr list for the named repository using nathanmcnulty. Do not create or modify issues/PRs."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "README.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "CPC-002",
+      "title": "Prove a non-remediating Cloud PC monitor pilot",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deterministic fixtures establish logic but not Windows 365 collection, state retention or real notification routing.",
+      "scope": [
+        "docs/validation.md",
+        "docs/operations.md",
+        "scripts/Test-LocalFixtures.ps1"
+      ],
+      "acceptance": [
+        "Record collection mode, read permissions, grace periods, durable fingerprints and acknowledgement suppression.",
+        "Pilot stays dry-run first; any real Teams send is separately authorized with recipient-visible evidence.",
+        "No delete, resize or reprovision occurs; unsupported/stale API data remains a visible gap."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/validate.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "azure-deployment",
+      "components": [],
+      "sources": [
+        "README.md",
+        "docs/configuration.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "CPC-003",
+      "title": "Add a controlled alert acknowledgement interface",
+      "kind": "feature",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Durable acknowledgement state exists; the documented operator workflow can be improved without adding remediation.",
+      "scope": [
+        "src/",
+        "docs/operations.md",
+        "tests/"
+      ],
+      "acceptance": [
+        "Acknowledge only an exact alert identity with actor/time provenance and expiry/reopen rules.",
+        "Fixtures prove acknowledgement suppresses delivery while preserving audit history and repeat-state behavior.",
+        "Never change a Cloud PC or broaden collection permissions as part of acknowledgement."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/validate.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "docs/architecture.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "CPC-004",
+      "title": "Evaluate shared notification and deployment contracts",
+      "kind": "discovery",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Python/identity-only hosting is not automatically compatible with the reference Flex pilot.",
+      "scope": [
+        "infra/",
+        "scripts/",
+        "docs/",
+        "azd-components.lock.json"
+      ],
+      "acceptance": [
+        "Map deployment-validation and notification-contracts to Python output without duplicating the event engine.",
+        "Compare Flex storage/RBAC and Python runtime shape; prefer current identity-only design when the pilot regresses it.",
+        "Keep remediations absent and Teams bearer URLs out of receipts."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/validate.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [
+        "deployment-validation",
+        "notification-contracts",
+        "flex-scheduled-poller-host"
+      ],
+      "sources": [
+        "README.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    }
+  ]
+}
