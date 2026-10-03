@@ -140,29 +140,57 @@ class GraphClient:
         )
 
     def get_recommendations(self, *, page_size: int = 100) -> list[dict[str, Any]]:
-        response = self.post_json(
+        if not 1 <= page_size <= 999:
+            raise ValueError("Recommendation page size must be between 1 and 999.")
+        path = (
             "/deviceManagement/virtualEndpoint/report/"
-            "retrieveCloudPcRecommendationReports",
-            api_version="v1.0",
-            body={
-                "reportType": "cloudPcUsageCategoryReport",
-                "filter": "",
-                "select": [
-                    "CloudPcId",
-                    "ManagedDeviceName",
-                    "UserPrincipalName",
-                    "ServicePlanId",
-                    "ServicePlanName",
-                    "UsageInsight",
-                    "RecommendedPlanId",
-                    "RecommendedPlanName",
-                ],
-                "search": "",
-                "skip": 0,
-                "top": page_size,
-            },
+            "retrieveCloudPcRecommendationReports"
         )
-        return parse_report_payload(response)
+        rows: list[dict[str, Any]] = []
+        seen_pages: set[str] = set()
+        for page in range(1000):
+            response = self.post_json(
+                path,
+                api_version="v1.0",
+                body={
+                    "reportType": "cloudPcUsageCategoryReport",
+                    "filter": "",
+                    "select": [
+                        "CloudPcId",
+                        "ManagedDeviceName",
+                        "UserPrincipalName",
+                        "ServicePlanId",
+                        "ServicePlanName",
+                        "UsageInsight",
+                        "RecommendedPlanId",
+                        "RecommendedPlanName",
+                    ],
+                    "search": "",
+                    "skip": page * page_size,
+                    "top": page_size,
+                },
+            )
+            raw_rows = None
+            if isinstance(response, dict):
+                raw_rows = response.get("value")
+                if raw_rows is None:
+                    raw_rows = response.get("Values", response.get("values"))
+            if not isinstance(raw_rows, list):
+                raise GraphApiError("POST", self._url(path, "v1.0"), 200, "report page was not an array")
+            page_rows = parse_report_payload(response)
+            if len(page_rows) != len(raw_rows):
+                raise GraphApiError("POST", self._url(path, "v1.0"), 200, "report page contained malformed rows")
+            if len(page_rows) > page_size:
+                raise GraphApiError("POST", self._url(path, "v1.0"), 200, "report page exceeded requested size")
+            if page_rows:
+                signature = json.dumps(page_rows, sort_keys=True, default=str)
+                if signature in seen_pages:
+                    raise GraphApiError("POST", self._url(path, "v1.0"), 200, "report pagination repeated a page")
+                seen_pages.add(signature)
+            rows.extend(page_rows)
+            if len(page_rows) < page_size:
+                return rows
+        raise GraphApiError("POST", self._url(path, "v1.0"), 200, "report pagination exceeded 1000 pages")
 
     def get_collection(
         self,
