@@ -52,6 +52,35 @@ class GraphClientTests(unittest.TestCase):
         )
         self.assertEqual(rows, [{"CloudPcId": "pc-1", "UsageInsight": "Underutilized"}])
 
+    def test_recommendation_report_collects_later_pages(self) -> None:
+        session = FakeSession([
+            FakeResponse(200, {"Schema": [{"Column": "CloudPcId"}], "Values": [["pc-1"], ["pc-2"]]}),
+            FakeResponse(200, {"Schema": [{"Column": "CloudPcId"}], "Values": [["pc-3"]]}),
+        ])
+        client = GraphClient(credential=FakeCredential(), session=session)
+
+        self.assertEqual(client.get_recommendations(page_size=2), [
+            {"CloudPcId": "pc-1"}, {"CloudPcId": "pc-2"}, {"CloudPcId": "pc-3"},
+        ])
+        self.assertEqual([call[2]["json"]["skip"] for call in session.calls], [0, 2])
+        self.assertTrue(all(call[1].startswith("https://graph.microsoft.com/v1.0/") for call in session.calls))
+
+    def test_recommendation_report_rejects_repeated_pages(self) -> None:
+        page = {"Schema": [{"Column": "CloudPcId"}], "Values": [["pc-1"]]}
+        client = GraphClient(credential=FakeCredential(), session=FakeSession([
+            FakeResponse(200, page), FakeResponse(200, page),
+        ]))
+        with self.assertRaisesRegex(Exception, "repeated a page"):
+            client.get_recommendations(page_size=1)
+
+    def test_recommendation_report_rejects_a_malformed_later_page(self) -> None:
+        client = GraphClient(credential=FakeCredential(), session=FakeSession([
+            FakeResponse(200, {"value": [{"CloudPcId": "pc-1"}]}),
+            FakeResponse(200, {"value": "not an array"}),
+        ]))
+        with self.assertRaisesRegex(Exception, "not an array"):
+            client.get_recommendations(page_size=1)
+
     def test_collection_paginates_and_retries_throttling(self) -> None:
         session = FakeSession(
             [
