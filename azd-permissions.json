@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0",
+  "solutionId": "azd-cloud-pc-recommendations",
+  "status": "implemented",
+  "coverage": "partial",
+  "reviewedOn": "2026-10-02",
+  "requirements": [
+    {
+      "resource": "https://graph.microsoft.com",
+      "kind": "application",
+      "permission": "CloudPC.Read.All",
+      "principal": "workload",
+      "phase": "runtime",
+      "feature": "inventory",
+      "defaultEnabled": true,
+      "scope": "tenant",
+      "rationale": "Required by the recorded project capability.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "714ef674b259f2faef5e4518fd4fc147f1e6a949835bf3f29ff17c877cf824db"
+        }
+      ]
+    },
+    {
+      "resource": "https://graph.microsoft.com",
+      "kind": "application",
+      "permission": "DeviceManagementManagedDevices.Read.All",
+      "principal": "workload",
+      "phase": "runtime",
+      "feature": "core",
+      "defaultEnabled": true,
+      "scope": "tenant",
+      "rationale": "Required by the recorded project capability.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "714ef674b259f2faef5e4518fd4fc147f1e6a949835bf3f29ff17c877cf824db"
+        }
+      ]
+    },
+    {
+      "resource": "https://graph.microsoft.com",
+      "kind": "application",
+      "permission": "CloudPC.ReadWrite.All",
+      "principal": "workload",
+      "phase": "runtime",
+      "feature": "recommendation-report",
+      "defaultEnabled": false,
+      "scope": "tenant",
+      "rationale": "Optional recommendation report requires a broader application role even though the workload consumes a report.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "714ef674b259f2faef5e4518fd4fc147f1e6a949835bf3f29ff17c877cf824db"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    "Azure RBAC scopes, operator/consent roles, cleanup, and optional connector permissions still need a full review.",
+    "Recommendation-report mode replaces inventory CloudPC.Read.All with CloudPC.ReadWrite.All; exclude the inventory feature when selecting recommendation-report."
+  ]
+}
