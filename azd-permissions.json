@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0",
+  "solutionId": "azd-cloud-pc-recommendations",
+  "status": "implemented",
+  "coverage": "partial",
+  "reviewedOn": "2026-10-11",
+  "requirements": [
+    {
+      "rationale": "Existing template grants 0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 for alert/observation/run state. Acknowledgement uses conditional writes within the existing table; no new grant.",
+      "defaultEnabled": true,
+      "evidence": [
+        {
+          "path": "infra/main.bicep",
+          "sha256": "f8bd6889ae5abb69feaa2afcc41a6b47b0a9abc69e531050e0c2431e98cf52a3"
+        },
+        {
+          "path": "src/cloud-pc-monitor/cloudpc_monitor/state.py",
+          "sha256": "46725b7248a337ad1e61bc8a815b2247f8bdf37c662279159d322c1090a4a898"
+        }
+      ],
+      "permission": "Storage Table Data Contributor",
+      "feature": "monitor-state",
+      "principal": "Function system-assigned managed identity",
+      "kind": "azure-rbac",
+      "phase": "runtime",
+      "resource": "Azure Storage Table",
+      "evidenceState": "code",
+      "scope": "Dedicated storage account"
+    },
+    {
+      "rationale": "Dedicated operator command reads exact alert/history and conditionally writes acknowledgement/audit entities; creates no table and grants no roles. Effective authority must be reviewed separately.",
+      "defaultEnabled": false,
+      "evidence": [
+        {
+          "path": "src/cloud-pc-monitor/cloudpc_monitor/ack_cli.py",
+          "sha256": "f9907abe3b4dd3b5fddf80991b4bd8ef8901803aa9283d87770eb07667a7ad78"
+        },
+        {
+          "path": "src/cloud-pc-monitor/cloudpc_monitor/state.py",
+          "sha256": "46725b7248a337ad1e61bc8a815b2247f8bdf37c662279159d322c1090a4a898"
+        }
+      ],
+      "permission": "Existing authorized Table read/write access (for example Storage Table Data Contributor)",
+      "feature": "alert-acknowledgement",
+      "principal": "Operator cached Azure CLI identity; actor label remains operator-asserted",
+      "kind": "azure-rbac",
+      "phase": "runtime",
+      "resource": "Azure Storage Table",
+      "evidenceState": "code",
+      "scope": "Explicitly selected existing account/table in selected tenant"
+    }
+  ],
+  "gaps": [
+    "Partial inventory: existing Graph collection roles, provisioning authority and Blob/Queue/report permissions are not fully inventoried here; inspect current template/hooks before deployment.",
+    "Operator effective Table access, selected target and authenticated identity are not established by an actor label or this metadata. No role assignment is approved or performed.",
+    "Fixtures do not qualify live Table concurrency, deployed telemetry or recipient-visible notification delivery; CPC-002 remains proposed."
+  ]
+}

@@ -19,6 +19,23 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Select PowerShell 7.6.6
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime="$(cygpath -u "$RUNNER_TEMP")/powershell-7.6.6"
+          archive="$runtime.zip"
+          mkdir "$runtime"
+          curl --fail --location --output "$archive" 'https://github.com/PowerShell/PowerShell/releases/download/v7.6.6/PowerShell-7.6.6-win-x64.zip'
+          echo "02fe458be20493fbdf43f61ea20610b811ee6c738ab1676c61b9cfcd1a33c860  $archive" | sha256sum --check
+          unzip -q "$archive" -d "$runtime"
+          cygpath -w "$runtime" >> "$GITHUB_PATH"
+      - name: Assert selected PowerShell runtime
+        shell: pwsh
+        run: |
+          if ($PSVersionTable.PSVersion -ne [version]'7.6.6' -or -not [Environment]::Is64BitProcess) {
+            throw 'Expected 64-bit PowerShell 7.6.6.'
+          }
       - name: Install existing runtime dependencies for transport and handler tests
         shell: pwsh
         run: python -m pip install -r .\src\cloud-pc-monitor\requirements.txt

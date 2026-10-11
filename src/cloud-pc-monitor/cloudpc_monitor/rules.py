@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 import hashlib
 from typing import Any, Iterable, Mapping
@@ -26,6 +26,7 @@ class Alert:
     detected_at: datetime
     action_url: str
     evidence: dict[str, Any]
+    episode: str | None = None
 
     def as_payload(self) -> dict[str, Any]:
         return {
@@ -45,6 +46,7 @@ class Alert:
     def as_state(self, existing: Mapping[str, Any] | None = None) -> dict[str, Any]:
         previous = existing or {}
         return {
+            **previous,
             **self.as_payload(),
             "active": True,
             "acknowledged": bool(previous.get("acknowledged", False)),
@@ -138,6 +140,8 @@ def evaluate_alerts(
 ) -> list[Alert]:
     """Evaluate rules and synchronize durable alert and grace-period state."""
 
+    from .acknowledgements import health_time, parse_stamp
+
     observed_at = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     current_fingerprints: set[str] = set()
     candidate_keys: set[str] = set()
@@ -154,6 +158,14 @@ def evaluate_alerts(
             if cloud_pc_id in rule.suppressed_cloud_pc_ids or user in rule.suppressed_users:
                 continue
 
+            fingerprint = fingerprint_for(rule.id, cloud_pc_id)
+            existing = state.get_alert(fingerprint)
+            if existing is not None and observed_at <= health_time(existing):
+                # Equal-time inactive/contradictory snapshots cannot establish a new episode.
+                if observed_at < health_time(existing) or not existing["active"]:
+                    current_fingerprints.add(fingerprint)
+                    candidate_keys.add(f"{rule.id}:{cloud_pc_id}")
+                    continue
             reason = _rule_reason(rule, record, observed_at)
             observation_key = f"{rule.id}:{cloud_pc_id}"
             if reason is None:
@@ -161,8 +173,11 @@ def evaluate_alerts(
                 continue
 
             candidate_keys.add(observation_key)
-            first_seen = state.record_observation(observation_key, observed_at)
-            fingerprint = fingerprint_for(rule.id, cloud_pc_id)
+            reset_after = parse_stamp(existing["resolvedAt"]) if existing and not existing["active"] else None
+            first_seen = state.record_observation(observation_key, observed_at, reset_after=reset_after)
+            if existing and existing["active"]:
+                # An active episode already passed grace; observation deletion cannot reset it.
+                first_seen = parse_stamp(existing["firstSeenAt"])
             current_fingerprints.add(fingerprint)
             elapsed_minutes = max(
                 0.0, (observed_at - first_seen).total_seconds() / 60.0
@@ -183,9 +198,9 @@ def evaluate_alerts(
                 action_url=str(record.get("action_url", "")),
                 evidence=_evidence(record),
             )
-            alerts.append(alert)
-            existing = state.get_alert(fingerprint)
-            state.upsert_alert(alert.as_state(existing))
+            current = state.synchronize_alert(alert.as_payload(), observed_at)
+            if current is not None:
+                alerts.append(replace(alert, episode=current["episode"]))
 
     for observation in state.list_observations():
         key = str(observation.get("key", ""))
@@ -200,7 +215,8 @@ def evaluate_alerts(
             and fingerprint
             and fingerprint not in current_fingerprints
         ):
-            state.mark_alert_inactive(str(fingerprint), resolved_at)
+            from .acknowledgements import identity
+            state.mark_alert_inactive(str(fingerprint), resolved_at, episode=identity(existing)["episode"])
 
     return alerts
 

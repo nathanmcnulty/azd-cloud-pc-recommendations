@@ -1,3 +1,4 @@
+#Requires -Version 7.6
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $functionRoot = Join-Path $repositoryRoot 'src\cloud-pc-monitor'

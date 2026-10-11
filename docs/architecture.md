@@ -42,3 +42,12 @@ The implementation follows the current Microsoft documentation for [tenant Cloud
 6. Conditions absent from a later complete evaluation are marked inactive and their grace-period observation is cleared.
 
 No rule calls a Cloud PC write endpoint. The report explicitly records that remediation was not executed.
+
+Acknowledgement state uses exact fingerprint/episode/acknowledgement-revision
+identity. See [the operator workflow](operations.md#exact-alert-acknowledgement).
+Append-only audit entities use reserved `audit:<fingerprint>:<eventId>` keys in the
+existing `alert` partition; alert enumeration excludes them. Conditional alert
+updates and event insertion are atomic. The same bounded compare-and-swap logic
+is shared by the in-memory fixture store and Table-backed monitor, preserving
+concurrent acknowledgement during ordinary timer updates. This adds no web
+endpoint, Graph collection operation, remediation or notification route.

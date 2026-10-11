@@ -102,7 +102,7 @@ class ComponentAssessmentTests(unittest.TestCase):
             state = InMemoryStateStore()
             state.upsert_alert(item.as_state())
             if acknowledged:
-                state.acknowledge_alert(item.fingerprint, NOW.isoformat())
+                state.upsert_alert({**state.get_alert(item.fingerprint), "acknowledged": True, "acknowledgedAt": NOW.isoformat()})
             else:
                 state.mark_notified(item.fingerprint, NOW.isoformat())
             session = Session([])

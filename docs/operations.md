@@ -55,3 +55,92 @@ actual monitor/timer handler; no Teams messages are sent.
 `azd down` removes the Azure resources owned by the azd environment. Before cleanup, preserve any audit reports required by policy and verify the exact resource group. Review the Function service principal and Graph app-role assignments according to tenant policy; do not assume a resource cleanup operation is a substitute for tenant-side identity review.
 
 The template does not delete Cloud PCs, managed devices, licenses, assignments, policies, Teams channels, or external workflow definitions.
+
+## Exact alert acknowledgement
+
+From `src/cloud-pc-monitor`, use `python -m cloudpc_monitor.ack_cli` with the
+selected storage account name, tenant GUID and existing table name. This command
+uses cached Azure CLI credentials for that tenant; it never logs in, grants a
+role, creates a table, collects Graph data, sends notifications or changes a
+Cloud PC. The operator must already have authorized read/write access to the
+selected Table. No new identity, scope or automatic role assignment is added.
+
+```powershell
+# PowerShell 7.6+. Supply the intended existing account/tenant/table.
+$target = @('--account-name', $accountName, '--tenant-id', $tenantId,
+    '--table', $tableName)
+python -m cloudpc_monitor.ack_cli @target show --fingerprint $fingerprint
+# Copy the exact episode and ackRevision from show. Keep this request UUID for replay.
+$requestId = [guid]::NewGuid().ToString()
+python -m cloudpc_monitor.ack_cli @target acknowledge --fingerprint $fingerprint `
+    --episode $episode --revision $ackRevision --request-id $requestId `
+    --actor $operatorLabel --expires-at $expiresAtUtc
+python -m cloudpc_monitor.ack_cli @target history --fingerprint $fingerprint --limit 20
+# If history returns a cursor, pass --cursor $cursor to get the next page.
+```
+
+The fingerprint is the exact SHA-256 alert identity, not a device name or a
+wildcard. The episode identifies its current activation; acknowledgement revision
+changes with acknowledgement, expiry and reopening, rather than each ordinary
+timer update. Missing/inactive alerts, wrong episodes/revisions and malformed
+inputs fail with a finite diagnostic. New acknowledgement expiry must be a future,
+timezone-qualified timestamp supplied explicitly; acknowledgement time comes from
+the command's UTC clock. Actor labels are **operator-asserted**, never proof of the
+Azure CLI account, tenant identity or authenticated human. Do not put secrets in
+an operator label. Legacy acknowledgement rows keep their existing indefinite
+suppression with `legacy_unknown` provenance until explicitly replaced; historical
+actor/time information is not fabricated.
+
+Acknowledgement suppresses notification eligibility until `now >= expiresAt`.
+The existing renotification interval still applies after expiry. Ordinary repeated
+observations retain the episode and acknowledgement; observed resolution followed
+by reactivation opens a new episode without inheriting suppression. Historical
+acknowledgement, expiry, resolution and reopen events remain immutable and are
+returned in bounded pages ordered by event key, not chronological order. There is
+no automatic history deletion or invented retention policy. Old alert row keys,
+notification timestamps/counts and unrelated state fields are retained.
+
+The alert update and acknowledgement audit insert form a same-partition Table
+transaction with the observed opaque ETag. Timer synchronization, resolution and
+notification bookkeeping use conditional updates too. Each acknowledged send in
+the same episode increments its count, while the recorded success timestamp stays
+at the latest qualified UTC time even if older requests finish later. A prior
+episode cannot update a newly activated alert; malformed input or stored timestamps
+are refused without a state write. Only confirmed 409/412
+conflicts may recompute against current state, up to four attempts. SDK mutation
+retries are disabled; a lost response is an unknown outcome, never proof of a
+failed write. An acknowledgement rereads its exact request event to resolve an
+ambiguous result. Even after a successful transaction response, missing, malformed
+or mismatched audit readback remains unqualified and returns a closed failure; it
+does not trigger a second transaction. Identical request replay is idempotent; reusing a UUID with
+changed inputs is refused. The Python transition supports replay after the recorded
+expiry; the CLI deliberately rejects expired command input before constructing a
+credential/store, so use bounded history to inspect an older request outcome.
+
+Health ordering uses captured observation/resolution timestamps, never the
+operator's acknowledgement time. Older snapshots cannot resolve or overwrite a
+newer observation, clear its acknowledgement or reopen its episode. Equal-time
+contradictory transitions and legacy rows without usable health timestamps are
+refused; repeated identical active observations remain valid. Notification
+candidates must still match the current active episode and observation at the
+eligibility check and immediately before dispatch.
+
+An active episode retains its durable first-seen time if an overlapping older
+snapshot deletes grace observation state, so this cannot delay an already active
+alert or defeat acknowledgement suppression. Post-resolution grace cannot reuse
+an observation from before resolution. Observation rows themselves retain the
+existing non-transactional monitor behavior: overlapping snapshots before an
+alert exists can still delay first activation. This is not an acknowledgement,
+exactly-once collection or live concurrency guarantee.
+
+Acknowledgement committed before the notifier's eligibility decision suppresses
+the send. It cannot recall an already dispatched HTTP request. A successful webhook
+response remains HTTP acknowledgement, not recipient-visible delivery or an
+exactly-once guarantee. Fixtures exercise the real rules/state/notifier and SDK
+wire interfaces with synthetic transports; live Table concurrency and actual
+recipient visibility remain CPC-002 validation gates.
+
+`azd-permissions.json` is a partial source-backed inventory with explicit gaps,
+not authority to grant permissions. The acknowledgement feature uses the existing
+Table access boundary; shared deployment/notification contracts do not provide
+these alert-episode/concurrency semantics and are not adopted here.
