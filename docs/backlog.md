@@ -7,7 +7,7 @@
 - **Repository:** nathanmcnulty/azd-cloud-pc-recommendations
 - **Source revision:** `2e247dc0895e7b4822ed74ffe58c0f5924ba5824`
 - **Captured:** 2026-10-04
-- **Items:** 5
+- **Items:** 6
 
 ## CPC-001: Reconcile this backlog with current source and active work
 
@@ -114,11 +114,65 @@ Read-only reconciliation identified a resolved current-main defect missing from 
 
 Review CPC-005 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.
 
+## CPC-006: Remove raw Teams provider errors from logs
+
+- **Kind:** maintenance
+- **Priority:** P1
+- **Status:** proposed
+- **Wave:** 1
+- **Authorization:** local-only
+- **Blocker:** _none_
+- **Claim:** _none_
+
+**Problem:**
+
+TeamsNotifier includes raw provider response text in NotificationError and logs it; a reflected webhook bearer URL or credential can leak into telemetry. Transport exceptions can also escape without a safe classified result.
+
+**Scope:**
+
+- src/cloud-pc-monitor/cloudpc&lowbar;monitor/notifications.py
+- tests/test&lowbar;notifications.py
+- tests/test&lowbar;component&lowbar;assessment.py
+- docs/operations.md
+
+**Acceptance:**
+
+- Remove raw provider body/exception/URL values from notification logs and return only stable allowlisted status/failure codes; do not echo destination configuration.
+- Replace the CPC-004 characterization with negative receipt/log probes containing synthetic callback URLs, authorization values and reflected provider secrets, including nonretryable/retry-exhausted/transport-exception cases.
+- Preserve retry, acknowledgement, deduplication, partial-batch success and non-remediating behavior; do not broaden Graph permissions or imply recipient-visible delivery from HTTP acceptance.
+
+**Validation:**
+
+- ./scripts/validate.ps1
+- ./scripts/Test-LocalFixtures.ps1
+- python -m unittest tests.test&lowbar;notifications tests.test&lowbar;component&lowbar;assessment -v
+
+**Dependencies:**
+
+- _none_
+
+**Components:**
+
+- notification-contracts
+
+**Sources:**
+
+- https&colon;//github.com/nathanmcnulty/azd-cloud-pc-recommendations/blob/f035b101ebe9c5928dae058ad871979a23b56e1e/src/cloud-pc-monitor/cloudpc&lowbar;monitor/notifications.py
+- docs/component-compatibility-assessment.md
+
+**Evidence:**
+
+- CPC-004 source review and synthetic partial-batch 400 response fixture show response.text enters NotificationError and deliver logs the exception. The aggregate status result omits the body, but that is not end-to-end log safety. Runtime source is unchanged by the assessment.
+
+**Review and authorization note:**
+
+Review CPC-006 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.
+
 ## CPC-004: Evaluate shared notification and deployment contracts
 
 - **Kind:** discovery
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 1
 - **Authorization:** local-only
 - **Blocker:** _none_
@@ -159,10 +213,14 @@ Python/identity-only hosting is not automatically compatible with the reference 
 **Sources:**
 
 - README.md
+- docs/component-compatibility-assessment.md
 
 **Evidence:**
 
-- _none_
+- Assessed fresh main f035b101ebe9c5928dae058ad871979a23b56e1e against immutable Reference 277584b33fcae7d47113718aad6428abdc4bc50f. Full source/field/trust mapping is in docs/component-compatibility-assessment.md; no component lock/adoption or infrastructure/runtime/permission change was made.
+- Defer Flex 0.1.0 because Node 22/shared-key connection strings/Blob-only roles regress Python 3.11, disabled shared keys, managed-identity host/package storage and Blob Owner/Queue/Table roles. Adapt notification contracts only through the existing Python delivery boundary; aggregate counts cannot become per-event/per-route receipts. An optional PS 7.6+ management wrapper can orchestrate bounded read-only checks without duplicating the event engine; its implementation is deferred.
+- Five new executable actual-consumer fixtures prove aggregate report/state binding and absent remediation, partial-batch successful state, acknowledgement/dedup ambiguity, missing destination, HTTP acceptance/renotification and absence of a synthetic bearer URL from aggregate results. The logging probe reproduces an unsafe raw provider-text path; CPC-006 tracks that separate defect, so no end-to-end safe logging or canonical receipt adoption is claimed.
+- Registered scripts/validate.ps1 passed Bicep 0.46.1, PowerShell syntax, Python compilation and 17 unittest cases under PowerShell 7.6.6/Python 3.14.6. Existing Test-LocalFixtures.ps1 dry-run report and canonical backlog/export validation passed. No Graph/Azure mutation, delivery, remediation or deployment was performed; CPC-002/003 retain their original gates.
 
 **Review and authorization note:**
 

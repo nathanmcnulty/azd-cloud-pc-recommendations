@@ -33,7 +33,7 @@ The fixture run is always dry-run and never sends a webhook.
 
 ## Deploy
 
-Install Azure Developer CLI 1.23 or later, Azure CLI, and PowerShell 7. Use a normal cached Azure CLI/azd or browser sign-in. Do not put a Teams URL, token, or production configuration in source control.
+Install Azure Developer CLI 1.23 or later, Azure CLI, and PowerShell 7.6+. Use a normal cached Azure CLI/azd or browser sign-in. Do not put a Teams URL, token, or production configuration in source control.
 
 ```powershell
 # From a clone of this repository, skip `azd init`. Use `azd init -t ...` only
@@ -62,3 +62,5 @@ The optional recommendation report is disabled by default. Enabling `CLOUD_PC_RE
 ## Current boundaries
 
 This template does not create or modify Cloud PCs, Intune policies, licenses, assignments, groups, or Teams channels. It does not replace Intune recommendations, provide cost billing data, or claim that local tests prove tenant permissions or recipient-visible delivery. Those are separate live validation gates.
+
+The [shared component assessment](docs/component-compatibility-assessment.md) records Python/storage compatibility and notification/management contract gaps.
