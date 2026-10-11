@@ -1,0 +1,4 @@
+# Source evidence hashes bind these exact LF bytes across Windows/Linux checkouts.
+infra/main.bicep text eol=lf
+src/cloud-pc-monitor/cloudpc_monitor/state.py text eol=lf
+src/cloud-pc-monitor/cloudpc_monitor/ack_cli.py text eol=lf

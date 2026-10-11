@@ -103,9 +103,13 @@ class TeamsNotifier:
         sent = 0
         try:
             for chunk in _chunks(due, 10):
+                # Qualify again at the dispatch boundary; an in-flight request cannot be recalled.
+                chunk = [alert for alert in chunk if self._is_due(alert, state, observed_at)]
+                if not chunk:
+                    continue
                 self._send(build_payload(chunk))
                 for alert in chunk:
-                    state.mark_notified(alert.fingerprint, _iso(observed_at))
+                    state.mark_notified(alert.fingerprint, _iso(observed_at), episode=alert.episode)
                     sent += 1
         except NotificationError as exc:
             logging.error("Teams notification failed after %s alerts: %s", sent, exc.code)
@@ -117,15 +121,18 @@ class TeamsNotifier:
             }
 
         return {
-            "status": "sent",
+            "status": "sent" if sent else "none",
             "candidateCount": len(candidates),
             "sentCount": sent,
-            "reason": "new_or_due_alerts",
+            "reason": "new_or_due_alerts" if sent else "deduplicated_or_acknowledged",
         }
 
     def _is_due(self, alert: Alert, state: Any, now: datetime) -> bool:
         previous = state.get_alert(alert.fingerprint)
-        if previous and previous.get("acknowledged", False):
+        from .acknowledgements import delivery_is_current, effective_acknowledgement
+        if not delivery_is_current(alert, previous):
+            return False
+        if effective_acknowledgement(previous, now):
             return False
         if not previous:
             return True
