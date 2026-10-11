@@ -76,18 +76,21 @@ gaps prevent current adoption:
   reference requires `destinationUnavailable` failure for an unusable selected
   destination. Disabled policy/dry-run semantics also need explicit mapping;
   only the canonical three skip reasons are allowed.
-- Retry count, final HTTP evidence, failure classification and destination
-  context are not returned. A transport exception can escape without a result.
+- Retry count, final HTTP evidence, per-route failure classification and
+  destination context are not returned in the aggregate. CPC-006 now classifies
+  transport exceptions internally and returns the existing failed aggregate.
 
-**Known security gap, tracked by CPC-006:** `_send` includes up to 300 characters
+**Historical security gap, reproduced and repaired by CPC-006:** the assessed
+`f035b101ebe9c5928dae058ad871979a23b56e1e` `_send` included up to 300 characters
 of raw provider response text in `NotificationError`; `deliver` logs that error.
-A reflected callback URL or credential can therefore enter logs. A synthetic
-failure fixture reproduces this. The aggregate result does not contain that
-body, but this does **not** establish end-to-end secret-safe logging. Raw
-transport exceptions need the same safe classification boundary. The fix is
-separate from this assessment and must replace the characterization with a
-no-leak regression. Never emit webhook/bearer URLs, SAS URLs, raw exceptions,
-headers, response bodies or rendered cards in canonical receipts.
+A reflected callback URL or credential could therefore enter logs. The original
+synthetic failure fixture reproduced this and is now a negative receipt/log
+regression. The repaired boundary does not read response text, does not log or
+chain raw transport errors, and uses a closed diagnostic code. Tests cover real
+Requests prepared requests and the timer/monitor flow through an in-process
+adapter; they do not prove hosted telemetry or live Teams delivery. No component
+contract or hosting decision changes. Never emit webhook/bearer URLs, SAS URLs,
+raw exceptions, headers, response bodies or rendered cards in canonical receipts.
 
 ## Optional deployment-validation wrapper mapping
 
@@ -122,8 +125,11 @@ send messages. Do not implement another Python evaluator in PowerShell.
 in-process HTTP responses. It checks aggregate report/state binding, grace-pass
 behavior, currently absent remediation even when a reserved setting is true,
 partial-batch state, acknowledgement ambiguity, missing destination, HTTP
-acceptance/renotification, receipt URL absence and the explicitly unsafe logging
-gap. It does not implement or claim canonical envelope/result validation.
+acceptance/renotification and receipt/log URL absence. Additional
+`tests/test_notification_safety.py` cases cover provider body refusal, Requests
+transport classification, exhausted retries, partial success and actual timer/
+monitor report persistence. It does not implement or claim canonical envelope/
+result validation.
 
 Run `./scripts/validate.ps1` and `./scripts/Test-LocalFixtures.ps1` with PowerShell
 7.6+. The former compiles Bicep and Python, parses PowerShell and discovers all
