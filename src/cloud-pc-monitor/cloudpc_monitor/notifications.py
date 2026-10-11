@@ -17,7 +17,15 @@ from .rules import Alert, parse_datetime
 
 
 class NotificationError(RuntimeError):
-    """A Teams webhook request failed."""
+    """A Teams request failed with a closed, non-provider diagnostic code."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code if code in {
+            "session_unavailable", "http_rejected", "http_retry_exhausted",
+            "transport_timeout", "transport_connection_failed",
+            "transport_request_failed", "transport_failed",
+        } else "transport_failed"
+        super().__init__(self.code)
 
 
 class TeamsNotifier:
@@ -95,12 +103,12 @@ class TeamsNotifier:
         sent = 0
         try:
             for chunk in _chunks(due, 10):
-                self._send(build_payload(chunk), len(chunk))
+                self._send(build_payload(chunk))
                 for alert in chunk:
                     state.mark_notified(alert.fingerprint, _iso(observed_at))
                     sent += 1
         except NotificationError as exc:
-            logging.error("Teams notification failed after %s alerts: %s", sent, exc)
+            logging.error("Teams notification failed after %s alerts: %s", sent, exc.code)
             return {
                 "status": "failed",
                 "candidateCount": len(candidates),
@@ -127,23 +135,38 @@ class TeamsNotifier:
         elapsed_hours = (now - last_notified).total_seconds() / 3600.0
         return elapsed_hours >= self.settings.notification_renotify_hours
 
-    def _send(self, payload: dict[str, Any], alert_count: int) -> None:
+    def _send(self, payload: dict[str, Any]) -> None:
         if self.session is None:
-            raise NotificationError("Teams delivery session is not configured.")
+            raise NotificationError("session_unavailable")
         for attempt in range(4):
-            response = self.session.post(
-                self.settings.teams_webhook_url,
-                json=payload,
-                headers={"Content-Type": "application/json"},
-                timeout=15,
-            )
+            transport_code = None
+            try:
+                response = self.session.post(
+                    self.settings.teams_webhook_url,
+                    json=payload,
+                    headers={"Content-Type": "application/json"},
+                    timeout=15,
+                )
+            except Exception as exc:
+                # Requests exceptions can embed the bearer URL, headers and
+                # provider text. Never stringify them or preserve a raw cause.
+                transport_code = "transport_failed"
+                if requests is not None:
+                    if isinstance(exc, requests.exceptions.Timeout):
+                        transport_code = "transport_timeout"
+                    elif isinstance(exc, requests.exceptions.ConnectionError):
+                        transport_code = "transport_connection_failed"
+                    elif isinstance(exc, requests.exceptions.RequestException):
+                        transport_code = "transport_request_failed"
+            # Raise after leaving the except block so even __context__ cannot
+            # retain the raw Requests error for a later telemetry serializer.
+            if transport_code is not None:
+                raise NotificationError(transport_code) from None
             if 200 <= response.status_code < 300:
                 return
             if response.status_code not in {429, 500, 502, 503, 504} or attempt == 3:
-                detail = (getattr(response, "text", "") or "").replace("\n", " ")[:300]
-                raise NotificationError(
-                    f"Teams webhook returned HTTP {response.status_code} for {alert_count} alerts: {detail}"
-                )
+                code = "http_retry_exhausted" if response.status_code in {429, 500, 502, 503, 504} else "http_rejected"
+                raise NotificationError(code)
             retry_after = _retry_after(response.headers.get("Retry-After"))
             self.sleeper(retry_after if retry_after is not None else min(30.0, 2**attempt))
 

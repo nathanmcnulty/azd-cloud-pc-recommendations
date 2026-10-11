@@ -33,6 +33,23 @@ The post-provision hook is idempotent: existing Graph role assignments are detec
 
 Graph throttling is handled with `Retry-After` when present and bounded exponential backoff for retryable 429/5xx responses. A report records partial collection warnings rather than converting a failed optional source into an empty success.
 
+Teams failures log only the successful alert count and one fixed diagnostic:
+`http_rejected`, `http_retry_exhausted`, `transport_timeout`,
+`transport_connection_failed`, `transport_request_failed`, `transport_failed`,
+or `session_unavailable`. Provider response text, exception messages/traceback
+causes, webhook URLs and destination settings are not copied into those logs or
+aggregate results. Inspect the authorized workflow run history for additional
+provider diagnostics; do not paste bearer URLs or raw errors into reports.
+
+The aggregate keeps its existing `failed` / `webhook_request_failed` outcome
+and successful partial-batch count. Retryable HTTP statuses still get at most
+four attempts with bounded existing backoff; transport exceptions return a safe
+failure immediately without adding a new retry policy. Only successful chunks
+update notification state. Acknowledgement and deduplication semantics, skipped
+destinations, lack of remediation, and the HTTP-versus-recipient proof boundary
+remain unchanged. Offline safety tests use an in-process Requests adapter and
+actual monitor/timer handler; no Teams messages are sent.
+
 ## Cleanup
 
 `azd down` removes the Azure resources owned by the azd environment. Before cleanup, preserve any audit reports required by policy and verify the exact resource group. Review the Function service principal and Graph app-role assignments according to tenant policy; do not assume a resource cleanup operation is a substitute for tenant-side identity review.

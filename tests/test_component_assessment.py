@@ -84,7 +84,7 @@ class ComponentAssessmentTests(unittest.TestCase):
             state.upsert_alert(item.as_state())
         session = Session([Response(), Response(400, CANARY_URL)])
         notifier = TeamsNotifier(enabled_settings(), session=session)
-        # Capture the existing unsafe log without printing the synthetic marker.
+        # Execute the repaired boundary; aggregate result semantics stay intact.
         with self.assertLogs(level="ERROR") as logs:
             result = notifier.deliver(alerts, state, now=NOW)
         self.assertEqual(result, {"status": "failed", "candidateCount": 11, "sentCount": 10, "reason": "webhook_request_failed"})
@@ -92,9 +92,8 @@ class ComponentAssessmentTests(unittest.TestCase):
         self.assertTrue(all(state.get_alert(item.fingerprint)["notificationCount"] == 1 for item in alerts[:10]))
         self.assertIsNone(state.get_alert(alerts[-1].fingerprint)["lastNotifiedAt"])
         self.assertNotIn(CANARY_URL, json.dumps(result))
-        # CPC-006 records this defect. This characterization is not a safety pass
-        # and must become a no-leak regression assertion when that fix is made.
-        self.assertIn(CANARY_URL, " ".join(logs.output))
+        self.assertNotIn(CANARY_URL, " ".join(logs.output))
+        self.assertIn("http_rejected", " ".join(logs.output))
 
     def test_acknowledgement_and_completed_delivery_have_the_same_aggregate_reason(self):
         item = alert(0)
