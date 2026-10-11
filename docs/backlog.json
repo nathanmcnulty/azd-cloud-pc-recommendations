@@ -187,7 +187,7 @@
       "title": "Remove raw Teams provider errors from logs",
       "kind": "maintenance",
       "priority": "P1",
-      "status": "proposed",
+      "status": "done",
       "wave": 1,
       "problem": "TeamsNotifier includes raw provider response text in NotificationError and logs it; a reflected webhook bearer URL or credential can leak into telemetry. Transport exceptions can also escape without a safe classified result.",
       "scope": [
@@ -216,7 +216,10 @@
         "docs/component-compatibility-assessment.md"
       ],
       "evidence": [
-        "CPC-004 source review and synthetic partial-batch 400 response fixture show response.text enters NotificationError and deliver logs the exception. The aggregate status result omits the body, but that is not end-to-end log safety. Runtime source is unchanged by the assessment."
+        "CPC-004 source review and synthetic partial-batch 400 response fixture show response.text enters NotificationError and deliver logs the exception. The aggregate status result omits the body, but that is not end-to-end log safety. Runtime source is unchanged by the assessment.",
+        "Completed by independently reviewed PR #9 (https://github.com/nathanmcnulty/azd-cloud-pc-recommendations/pull/9), reviewed head b3b59f206a64c16c16927a5ea51427c2e4ffa6cd, merged main adb48c20e0e57101d608f8735b4b5cb051f89a58 and tree 3cbe37dddbc3be2093ef2599ad37cdf81112cc91. All six committed source blobs were bound to frozen evidence; independent review SHA BAD9565CC06FAFE092F0C87D31576AC5179C68A9854CF6D8FEFFEB57BD8EFEC0. Post-main runs 38115876557, 38115876555 and 38115876719 succeeded on the merged source.",
+        "TeamsNotifier now uses allowlisted failure codes, never reads provider response text, and removes raw transport exception cause/context before logging a safe classified result. Arbitrary error values collapse to a fixed code. The CPC-004 log characterization is a negative leak regression; retry/backoff, acknowledgement, deduplication, partial-batch state and non-remediating delivery semantics are preserved.",
+        "PowerShell 7.6.6 registered scripts/validate.ps1 passed Bicep, PowerShell syntax, Python compilation and 24 unittest cases; Test-LocalFixtures.ps1 passed deterministic dry-run reporting. Thirteen focused notification/component/safety methods cover arbitrary provider secrets, nonretryable and exhausted retries, Requests transport exception types, partial batches, and the actual timer/monitor/notifier logging flow through isolated HTTP adapters. Fixtures prove local source behavior only: no real recipient-visible delivery, hosted telemetry, Graph/Azure mutation, deployment or remediation is claimed. CPC-002 retains live pilot acceptance."
       ],
       "blocker": null,
       "claim": null
