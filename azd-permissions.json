@@ -3,7 +3,7 @@
   "solutionId": "azd-cloud-pc-recommendations",
   "status": "implemented",
   "coverage": "partial",
-  "reviewedOn": "2026-10-11",
+  "reviewedOn": "2026-10-16",
   "requirements": [
     {
       "rationale": "Existing template grants 0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 for alert/observation/run state. Acknowledgement uses conditional writes within the existing table; no new grant.",
@@ -48,9 +48,28 @@
       "resource": "Azure Storage Table",
       "evidenceState": "code",
       "scope": "Explicitly selected existing account/table in selected tenant"
+    },
+    {
+      "rationale": "Optional read-only deployment wrapper uses cached Azure CLI context to inspect exact resources, app settings, role assignments, and an explicitly selected state-table row. It grants no roles and does not send delivery events.",
+      "defaultEnabled": false,
+      "evidence": [
+        {
+          "path": "scripts/Test-Deployment.ps1",
+          "sha256": "87a1edb22d4d477ce7229f8fe74aa7e48b3931e23d26ec645a5ac2cf08c599ba"
+        }
+      ],
+      "permission": "Existing read access plus Microsoft.Web/sites/config/list/action and selected Table Data Reader authority",
+      "feature": "deployment-validation-wrapper",
+      "principal": "Operator cached Azure CLI identity",
+      "kind": "azure-rbac",
+      "phase": "runtime",
+      "resource": "Explicitly selected Function App, storage account, and optional state table",
+      "evidenceState": "code",
+      "scope": "Exact selected resources in selected tenant and subscription"
     }
   ],
   "gaps": [
+    "Optional read-only Test-Deployment.ps1 wrapper reads one explicitly selected run/latest Table entity with the caller's cached Azure CLI identity; it grants no roles and does not prove runtime, Graph, report, or delivery outcomes.",
     "Partial inventory: existing Graph collection roles, provisioning authority and Blob/Queue/report permissions are not fully inventoried here; inspect current template/hooks before deployment.",
     "Operator effective Table access, selected target and authenticated identity are not established by an actor label or this metadata. No role assignment is approved or performed.",
     "Fixtures do not qualify live Table concurrency, deployed telemetry or recipient-visible notification delivery; CPC-002 remains proposed."

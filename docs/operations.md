@@ -144,3 +144,48 @@ recipient visibility remain CPC-002 validation gates.
 not authority to grant permissions. The acknowledgement feature uses the existing
 Table access boundary; shared deployment/notification contracts do not provide
 these alert-episode/concurrency semantics and are not adopted here.
+
+## Optional read-only deployment validation
+
+PowerShell 7.6+ users may run `scripts/Test-Deployment.ps1` to inspect the
+selected deployment through the cached Azure CLI session. `-Plan` is offline
+and performs no CLI or authentication call. Verification requires explicit
+`TenantId`, `SubscriptionId`, `ResourceGroup`, `FunctionAppName`, and
+`StorageAccountName`; it checks exact resource IDs, Python 3.11/system identity,
+identity-only storage settings, deployment storage binding, host endpoints, and
+direct unconditional storage roles. `-TableName` opts into one bounded
+`run/latest` Table read. `-TestDelivery` is intentionally unsupported and fails
+before any CLI or authentication call.
+
+The wrapper is control-plane evidence only. Passing checks do not establish
+Graph collection, Function execution, report generation, runtime telemetry, or
+recipient-visible Teams delivery. Use `-OutputPath reports/deployment-validation.json`
+to write a schema-validated local report (also the default); reports are gitignored.
+
+```powershell
+./scripts/Test-Deployment.ps1 -Plan
+./scripts/Test-Deployment.ps1 -TenantId $env:AZURE_TENANT_ID `
+    -SubscriptionId $env:AZURE_SUBSCRIPTION_ID -ResourceGroup $env:AZURE_RESOURCE_GROUP `
+    -FunctionAppName $env:AZURE_FUNCTION_APP_NAME -StorageAccountName $env:STORAGE_ACCOUNT_NAME
+```
+
+Verification requires the currently selected CLI context to match the supplied
+enabled tenant/subscription in public Azure. The checker does not switch accounts
+or start login. A missing session requires normal `az login`; no device-code
+authentication is used. Checks have a 30-second CLI timeout and fail with safe
+diagnostics when reads are denied or malformed. Read-only errors never trigger
+repair or grant operations.
+
+The caller needs resource/role-assignment read authority plus
+`Microsoft.Web/sites/config/list/action` to read Function settings; ordinary
+Reader alone does not authorize that action. Optional `-TableName` requires
+existing Table data read authority. No permission is granted by the checker or
+its partial permission inventory. The single `run/latest` key read proves only
+that an existing summary row is accessible; it does not establish freshness,
+payload validity, or runtime health. Inherited or conditional RBAC assignments
+are not accepted as the template's expected direct unconditional assignments.
+
+The vendored engine and schema are pinned in `azd-components.lock.json` to
+`azd-reference` revision `2b2e784ba11822272c0e4b8389976f95afafa9b9`
+(`deployment-validation` 2.0.0). Deployment never downloads or depends on the
+reference repository. This optional command is not an automatic lifecycle hook.
