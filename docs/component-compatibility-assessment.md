@@ -94,6 +94,16 @@ raw exceptions, headers, response bodies or rendered cards in canonical receipts
 
 ## Optional deployment-validation wrapper mapping
 
+**Implementation update (CPC-007):** the optional PowerShell 7.6+ wrapper is now
+implemented in `scripts/Test-Deployment.ps1` using immutable hash-locked
+`deployment-validation` 2.0.0. See [operations](operations.md#optional-read-only-deployment-validation)
+for explicit target arguments, required existing read authority and exact check
+boundaries. Plan is offline, verification is read-only, and delivery is refused.
+An optional key-only `run/latest` Table read proves row accessibility only.
+CPC-002 still owns deployed runtime, Graph, audit payload/freshness and recipient
+qualification. The original mapping below records the assessment and wider
+contract constraints; its future-tense language is historical design context.
+
 The [shared management standard](https://github.com/nathanmcnulty/azd-reference/blob/277584b33fcae7d47113718aad6428abdc4bc50f/standards/deployment-validation.md)
 can wrap Python output while Python retains collection, rules, state and delivery.
 The wrapper would use `New-AzdValidationReport`/check definitions, not copy the

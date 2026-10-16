@@ -31,6 +31,13 @@ The repository includes deterministic fixtures and a validation command that doe
 
 The fixture run is always dry-run and never sends a webhook.
 
+For an optional deployed-state check, use `scripts/Test-Deployment.ps1` with
+explicit tenant, subscription, resource group, Function App, and storage names.
+`-Plan` is offline; verification is read-only and gates every Azure CLI request
+on the exact cached tenant and subscription. `-TestDelivery` is unsupported and
+fails before authentication or CLI. This wrapper proves selected control-plane
+state only; it does not prove Graph, runtime, report, or recipient delivery.
+
 ## Deploy
 
 Install Azure Developer CLI 1.23 or later, Azure CLI, and PowerShell 7.6+. Use a normal cached Azure CLI/azd or browser sign-in. Do not put a Teams URL, token, or production configuration in source control.
