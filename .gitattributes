@@ -2,3 +2,5 @@
 infra/main.bicep text eol=lf
 src/cloud-pc-monitor/cloudpc_monitor/state.py text eol=lf
 src/cloud-pc-monitor/cloudpc_monitor/ack_cli.py text eol=lf
+scripts/Test-Deployment.ps1 text eol=lf
+scripts/vendor/Azd.DeploymentValidation/* text eol=lf

@@ -26,6 +26,13 @@ The rule tests run the same state through two observations so the provisioning a
 
 ## Live proof remains separate
 
+`test_deployment_wrapper.py` executes the real PowerShell 7.6+ wrapper and
+schema-validating report writer with subprocess CLI fixtures. It covers the
+healthy read sequence, opt-in exact audit keys, context/dependency gates,
+malformed/denied reads, unsafe endpoints and credential overrides, storage/RBAC
+regressions, credential-environment isolation and absence of synthetic secrets
+from stdout, stderr and reports. Fixture results do not prove Azure access.
+
 Local tests prove parsing, rule behavior, retries, state transitions, and payload shape. They do not prove:
 
 - tenant licensing or Microsoft Graph admin consent;

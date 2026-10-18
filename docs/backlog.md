@@ -5,9 +5,9 @@
 
 - **Schema version:** 1.0.0
 - **Repository:** nathanmcnulty/azd-cloud-pc-recommendations
-- **Source revision:** `2e247dc0895e7b4822ed74ffe58c0f5924ba5824`
-- **Captured:** 2026-10-04
-- **Items:** 6
+- **Source revision:** `6e6f5dd823026c17ad00d4f2a4b1407d4e9856d3`
+- **Captured:** 2026-10-18
+- **Items:** 7
 
 ## CPC-001: Reconcile this backlog with current source and active work
 
@@ -276,7 +276,7 @@ Deterministic fixtures establish logic but not Windows 365 collection, state ret
 
 **Evidence:**
 
-- _none_
+- 2026-10-18 read-only verification of the existing lab deployment in explicitly selected sub-mvp passed six checks&colon; cached target context, Function Linux Python 3.11/system identity, hardened storage, identity-only deployment/host configuration and three direct unconditional storage roles. The selected key-only CloudPcState run/latest read failed; a separate bounded diagnostic confirmed the operator lacks required table-data permissions. The full report remains failed. No grant, monitor invocation, Graph collection, state write, notification or resource mutation occurred. Runtime execution, Graph collection, audit payload/freshness and recipient-visible delivery remain unproven; this pilot stays proposed.
 
 **Review and authorization note:**
 
@@ -338,3 +338,62 @@ Durable acknowledgement state exists; the documented operator workflow can be im
 **Review and authorization note:**
 
 Review CPC-003 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.
+
+## CPC-007: Add optional read-only deployment-validation wrapper
+
+- **Kind:** feature
+- **Priority:** P2
+- **Status:** done
+- **Wave:** 2
+- **Authorization:** local-only
+- **Blocker:** _none_
+- **Claim:** _none_
+
+**Problem:**
+
+The completed component assessment mapped management checks but left no executable shared deployment-validation interface.
+
+**Scope:**
+
+- scripts/Test-Deployment.ps1
+- scripts/vendor/Azd.DeploymentValidation/
+- azd-components.lock.json
+- tests/test&lowbar;deployment&lowbar;wrapper.py
+- docs/operations.md
+- azd-permissions.json
+
+**Acceptance:**
+
+- Plan and unsupported delivery make no CLI/authentication calls; verification requires exact explicit targets and gates resource reads on matching enabled public-Azure cached context.
+- Check exact Function runtime/system identity, identity-only storage and deployment/host configuration, direct unconditional expected RBAC roles and optionally one existing audit row using login; never run the monitor, send notifications, grant permissions or mutate resources.
+- Write schema-validating safe reports using an immutable hash-locked engine; exercise the complete healthy subprocess sequence and negative boundary cases without claiming live runtime or delivery acceptance.
+
+**Validation:**
+
+- ./scripts/validate.ps1
+- ./scripts/Test-LocalFixtures.ps1
+- ./scripts/Test-Deployment.ps1 -Plan
+
+**Dependencies:**
+
+- CPC-004
+
+**Components:**
+
+- deployment-validation
+
+**Sources:**
+
+- docs/component-compatibility-assessment.md
+- docs/operations.md
+
+**Evidence:**
+
+- Source implementation vendors deployment-validation 2.0.0 at immutable reviewed reference main 2b2e784ba11822272c0e4b8389976f95afafa9b9. Includes exact context/dependency gates, bounded read-only native CLI checks, secret-free report projection and optional key-only run/latest read. This done status covers source/offline feature acceptance only; CPC-002 live pilot remains proposed.
+- PowerShell 7.6.6 focused subprocess fixtures passed ten methods, including the complete healthy sequence and malformed/denied provider cases. Actual installed Windows MSI CLI reached the expected wrong-subscription context failure with all target reads skipped; CLI default subscription remained unchanged. Independent review and exact-head hosted checks accompany the draft change; no deployment, target resource read, permission grant or delivery occurred.
+- 2026-10-18 native Azure CLI role assignments omitted the optional condition property, exposing a StrictMode failure. The wrapper now accepts absent/null/blank strings while rejecting non-string conditions, including empty/singleton arrays, without weakening role ID, scope or principal matching. Native sub-mvp re-verification passed the role check and five other control-plane checks; the optional selected-table read remains failed because the operator lacks data read permission. Historical offline acceptance does not imply completed CPC-002 pilot acceptance.
+- Final local validation passed all 76 registered tests &lpar;11 wrapper methods&rpar;, Bicep compilation, PowerShell syntax/Python compilation, deterministic dry-run reporting, offline Plan, canonical backlog/export checks and permission schema/source hashes. Missing Python dependencies caused an initial local run failure; installing the checked-in requirements in an isolated ignored virtual environment resolved it.
+
+**Review and authorization note:**
+
+Review CPC-007 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.

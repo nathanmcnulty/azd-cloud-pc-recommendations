@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "repository": "nathanmcnulty/azd-cloud-pc-recommendations",
-  "sourceRevision": "2e247dc0895e7b4822ed74ffe58c0f5924ba5824",
-  "capturedAt": "2026-10-04",
+  "sourceRevision": "6e6f5dd823026c17ad00d4f2a4b1407d4e9856d3",
+  "capturedAt": "2026-10-18",
   "items": [
     {
       "id": "CPC-001",
@@ -71,7 +71,9 @@
         "README.md",
         "docs/configuration.md"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-10-18 read-only verification of the existing lab deployment in explicitly selected sub-mvp passed six checks: cached target context, Function Linux Python 3.11/system identity, hardened storage, identity-only deployment/host configuration and three direct unconditional storage roles. The selected key-only CloudPcState run/latest read failed; a separate bounded diagnostic confirmed the operator lacks required table-data permissions. The full report remains failed. No grant, monitor invocation, Graph collection, state write, notification or resource mutation occurred. Runtime execution, Graph collection, audit payload/freshness and recipient-visible delivery remain unproven; this pilot stays proposed."
+      ],
       "blocker": null
     },
     {
@@ -229,6 +231,52 @@
         "Completed by independently reviewed PR #9 (https://github.com/nathanmcnulty/azd-cloud-pc-recommendations/pull/9), reviewed head b3b59f206a64c16c16927a5ea51427c2e4ffa6cd, merged main adb48c20e0e57101d608f8735b4b5cb051f89a58 and tree 3cbe37dddbc3be2093ef2599ad37cdf81112cc91. All six committed source blobs were bound to frozen evidence; independent review SHA BAD9565CC06FAFE092F0C87D31576AC5179C68A9854CF6D8FEFFEB57BD8EFEC0. Post-main runs 38115876557, 38115876555 and 38115876719 succeeded on the merged source.",
         "TeamsNotifier now uses allowlisted failure codes, never reads provider response text, and removes raw transport exception cause/context before logging a safe classified result. Arbitrary error values collapse to a fixed code. The CPC-004 log characterization is a negative leak regression; retry/backoff, acknowledgement, deduplication, partial-batch state and non-remediating delivery semantics are preserved.",
         "PowerShell 7.6.6 registered scripts/validate.ps1 passed Bicep, PowerShell syntax, Python compilation and 24 unittest cases; Test-LocalFixtures.ps1 passed deterministic dry-run reporting. Thirteen focused notification/component/safety methods cover arbitrary provider secrets, nonretryable and exhausted retries, Requests transport exception types, partial batches, and the actual timer/monitor/notifier logging flow through isolated HTTP adapters. Fixtures prove local source behavior only: no real recipient-visible delivery, hosted telemetry, Graph/Azure mutation, deployment or remediation is claimed. CPC-002 retains live pilot acceptance."
+      ],
+      "blocker": null,
+      "claim": null
+    },
+    {
+      "id": "CPC-007",
+      "title": "Add optional read-only deployment-validation wrapper",
+      "kind": "feature",
+      "priority": "P2",
+      "status": "done",
+      "wave": 2,
+      "problem": "The completed component assessment mapped management checks but left no executable shared deployment-validation interface.",
+      "scope": [
+        "scripts/Test-Deployment.ps1",
+        "scripts/vendor/Azd.DeploymentValidation/",
+        "azd-components.lock.json",
+        "tests/test_deployment_wrapper.py",
+        "docs/operations.md",
+        "azd-permissions.json"
+      ],
+      "acceptance": [
+        "Plan and unsupported delivery make no CLI/authentication calls; verification requires exact explicit targets and gates resource reads on matching enabled public-Azure cached context.",
+        "Check exact Function runtime/system identity, identity-only storage and deployment/host configuration, direct unconditional expected RBAC roles and optionally one existing audit row using login; never run the monitor, send notifications, grant permissions or mutate resources.",
+        "Write schema-validating safe reports using an immutable hash-locked engine; exercise the complete healthy subprocess sequence and negative boundary cases without claiming live runtime or delivery acceptance."
+      ],
+      "validation": [
+        "./scripts/validate.ps1",
+        "./scripts/Test-LocalFixtures.ps1",
+        "./scripts/Test-Deployment.ps1 -Plan"
+      ],
+      "dependencies": [
+        "CPC-004"
+      ],
+      "authorization": "local-only",
+      "components": [
+        "deployment-validation"
+      ],
+      "sources": [
+        "docs/component-compatibility-assessment.md",
+        "docs/operations.md"
+      ],
+      "evidence": [
+        "Source implementation vendors deployment-validation 2.0.0 at immutable reviewed reference main 2b2e784ba11822272c0e4b8389976f95afafa9b9. Includes exact context/dependency gates, bounded read-only native CLI checks, secret-free report projection and optional key-only run/latest read. This done status covers source/offline feature acceptance only; CPC-002 live pilot remains proposed.",
+        "PowerShell 7.6.6 focused subprocess fixtures passed ten methods, including the complete healthy sequence and malformed/denied provider cases. Actual installed Windows MSI CLI reached the expected wrong-subscription context failure with all target reads skipped; CLI default subscription remained unchanged. Independent review and exact-head hosted checks accompany the draft change; no deployment, target resource read, permission grant or delivery occurred.",
+        "2026-10-18 native Azure CLI role assignments omitted the optional condition property, exposing a StrictMode failure. The wrapper now accepts absent/null/blank strings while rejecting non-string conditions, including empty/singleton arrays, without weakening role ID, scope or principal matching. Native sub-mvp re-verification passed the role check and five other control-plane checks; the optional selected-table read remains failed because the operator lacks data read permission. Historical offline acceptance does not imply completed CPC-002 pilot acceptance.",
+        "Final local validation passed all 76 registered tests (11 wrapper methods), Bicep compilation, PowerShell syntax/Python compilation, deterministic dry-run reporting, offline Plan, canonical backlog/export checks and permission schema/source hashes. Missing Python dependencies caused an initial local run failure; installing the checked-in requirements in an isolated ignored virtual environment resolved it."
       ],
       "blocker": null,
       "claim": null
