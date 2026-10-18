@@ -173,6 +173,30 @@ class DeploymentWrapperTests(unittest.TestCase):
             fixture = healthy(); fixture["roles"][0][key] = value
             result, _, _ = self.run_wrapper(fixture); self.assertEqual(result.returncode, 1)
 
+    def test_missing_role_condition_is_unconditional_and_nonstring_condition_fails(self):
+        fixture = healthy()
+        for role in fixture["roles"]:
+            role.pop("condition")
+        result, report, _ = self.run_wrapper(fixture)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(next(c for c in report["checks"] if c["id"] == "identity.storage-roles")["status"], "pass")
+
+        for unconditional in ("", " \t"):
+            with self.subTest(unconditional=unconditional):
+                fixture = healthy()
+                for role in fixture["roles"]:
+                    role["condition"] = unconditional
+                result, report, _ = self.run_wrapper(fixture)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(next(c for c in report["checks"] if c["id"] == "identity.storage-roles")["status"], "pass")
+
+        for malformed in (7, False, [], [""], [None], [" "], {"operator": "StringEquals"}):
+            with self.subTest(malformed=malformed):
+                fixture = healthy(); fixture["roles"][0]["condition"] = malformed
+                result, report, _ = self.run_wrapper(fixture)
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(next(c for c in report["checks"] if c["id"] == "identity.storage-roles")["status"], "fail")
+
     def test_invalid_inputs_rejected_before_cli(self):
         for key, value in (("TenantId", "not-guid"), ("ResourceGroup", "%COMSPEC%"), ("FunctionAppName", "x&whoami"), ("StorageAccountName", "bad/account")):
             result, _, calls = self.run_wrapper(override={key: value})

@@ -147,3 +147,21 @@ tests; the latter runs the existing dry-run report path. No live Graph,
 Azure deployment, Teams delivery, remediation, permission grant or storage
 migration is needed to complete this discovery assessment. CPC-002 live pilot
 and CPC-003 acknowledgement work remain separate.
+
+## Native read-only verification update (2026-10-18)
+
+Verification against the existing `sub-mvp` deployment passed six checks:
+exact enabled context, Linux Python 3.11/system identity, hardened storage,
+identity-only deployment and host storage, and the three direct unconditional
+storage roles. Native role assignments omitted optional `condition`; the wrapper
+now handles that response while rejecting malformed non-string conditions.
+Subprocess fixtures cover missing/null/blank conditions and malformed arrays,
+objects, booleans and numbers, alongside wrong role/scope/principal failures.
+
+The explicitly selected key-only `CloudPcState` `run/latest` read failed. A
+separate bounded diagnostic confirmed the testing account lacks required table
+data permissions. The full verification report remains failed; no additional
+access was granted. This proves selected control-plane configuration only.
+Runtime execution, Graph collection, audit payload/freshness and recipient-visible
+delivery remain open under CPC-002. No monitor invocation, state write,
+notification or resource mutation was performed.

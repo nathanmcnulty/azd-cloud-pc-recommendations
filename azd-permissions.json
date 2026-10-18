@@ -55,7 +55,7 @@
       "evidence": [
         {
           "path": "scripts/Test-Deployment.ps1",
-          "sha256": "87a1edb22d4d477ce7229f8fe74aa7e48b3931e23d26ec645a5ac2cf08c599ba"
+          "sha256": "ea331d8cf6da9d900a1158789d126335ef44eba81b640d120f62e9adbcacd505"
         }
       ],
       "permission": "Existing read access plus Microsoft.Web/sites/config/list/action and selected Table Data Reader authority",

@@ -194,7 +194,12 @@ $checks.Add((New-AzdValidationCheckDefinition -Id 'identity.storage-roles' -Phas
     $required = @{ 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b' = 'Storage Blob Data Owner'; '974c5e8b-45b9-4653-ba55-5f855dd0fb88' = 'Storage Queue Data Contributor'; '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3' = 'Storage Table Data Contributor' }
     $missing = [System.Collections.Generic.List[string]]::new()
     foreach ($roleId in $required.Keys) {
-        $found = @($assignments | Where-Object { [string]$_.roleDefinitionId -match ('/roleDefinitions/{0}$' -f [regex]::Escape($roleId)) -and [string]$_.scope -eq $ctx.storageId -and [string]::IsNullOrWhiteSpace([string]$_.condition) -and [string]$_.principalId -eq $ctx.principalId })
+        $found = @($assignments | Where-Object {
+            $conditionProperty = $_.PSObject.Properties['condition']
+            $conditionIsUnconditional = $null -eq $conditionProperty -or $null -eq $conditionProperty.Value -or
+                ($conditionProperty.Value -is [string] -and [string]::IsNullOrWhiteSpace($conditionProperty.Value))
+            [string]$_.roleDefinitionId -match ('/roleDefinitions/{0}$' -f [regex]::Escape($roleId)) -and [string]$_.scope -eq $ctx.storageId -and $conditionIsUnconditional -and [string]$_.principalId -eq $ctx.principalId
+        })
         if ($found.Count -eq 0) { $missing.Add($required[$roleId]) }
     }
     if ($missing.Count -gt 0) { return New-SafeFailure -Code 'identity.storageRoles' -Summary ('Required direct storage roles are missing or conditional: ' + ($missing -join ', ') + '.') -Remediation 'Review the exact storage-scope role assignments for the Function system-assigned identity.' }

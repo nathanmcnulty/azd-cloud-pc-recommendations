@@ -5,8 +5,8 @@
 
 - **Schema version:** 1.0.0
 - **Repository:** nathanmcnulty/azd-cloud-pc-recommendations
-- **Source revision:** `285113a76bd1cdf177de5a49e806a8327066be22`
-- **Captured:** 2026-10-16
+- **Source revision:** `6e6f5dd823026c17ad00d4f2a4b1407d4e9856d3`
+- **Captured:** 2026-10-18
 - **Items:** 7
 
 ## CPC-001: Reconcile this backlog with current source and active work
@@ -276,7 +276,7 @@ Deterministic fixtures establish logic but not Windows 365 collection, state ret
 
 **Evidence:**
 
-- _none_
+- 2026-10-18 read-only verification of the existing lab deployment in explicitly selected sub-mvp passed six checks&colon; cached target context, Function Linux Python 3.11/system identity, hardened storage, identity-only deployment/host configuration and three direct unconditional storage roles. The selected key-only CloudPcState run/latest read failed; a separate bounded diagnostic confirmed the operator lacks required table-data permissions. The full report remains failed. No grant, monitor invocation, Graph collection, state write, notification or resource mutation occurred. Runtime execution, Graph collection, audit payload/freshness and recipient-visible delivery remain unproven; this pilot stays proposed.
 
 **Review and authorization note:**
 
@@ -391,6 +391,8 @@ The completed component assessment mapped management checks but left no executab
 
 - Source implementation vendors deployment-validation 2.0.0 at immutable reviewed reference main 2b2e784ba11822272c0e4b8389976f95afafa9b9. Includes exact context/dependency gates, bounded read-only native CLI checks, secret-free report projection and optional key-only run/latest read. This done status covers source/offline feature acceptance only; CPC-002 live pilot remains proposed.
 - PowerShell 7.6.6 focused subprocess fixtures passed ten methods, including the complete healthy sequence and malformed/denied provider cases. Actual installed Windows MSI CLI reached the expected wrong-subscription context failure with all target reads skipped; CLI default subscription remained unchanged. Independent review and exact-head hosted checks accompany the draft change; no deployment, target resource read, permission grant or delivery occurred.
+- 2026-10-18 native Azure CLI role assignments omitted the optional condition property, exposing a StrictMode failure. The wrapper now accepts absent/null/blank strings while rejecting non-string conditions, including empty/singleton arrays, without weakening role ID, scope or principal matching. Native sub-mvp re-verification passed the role check and five other control-plane checks; the optional selected-table read remains failed because the operator lacks data read permission. Historical offline acceptance does not imply completed CPC-002 pilot acceptance.
+- Final local validation passed all 76 registered tests &lpar;11 wrapper methods&rpar;, Bicep compilation, PowerShell syntax/Python compilation, deterministic dry-run reporting, offline Plan, canonical backlog/export checks and permission schema/source hashes. Missing Python dependencies caused an initial local run failure; installing the checked-in requirements in an isolated ignored virtual environment resolved it.
 
 **Review and authorization note:**
 
